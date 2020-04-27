@@ -1,0 +1,38 @@
+---
+- name: file_index
+  set_fact:
+    file_index: "{{ file_index| default({}) | combine( {item.path: item} ) }}"
+  loop: "{{ required_files|flatten(levels=1) }}"
+
+- name: stat required_files
+  stat:
+    path: "{{ item.path }}"
+  register: required_files_stat
+  become: true
+  loop: "{{ required_files|flatten(levels=1) }}"
+
+- name: check required files actually exist
+  assert:
+    that: "{{ item.stat.exists }}"
+    msg: "{{ item.invocation.module_args.path }} does not exist, and it should according to the unit tests"
+  loop: "{{ required_files_stat.results|flatten(levels=1) }}"
+
+- name: check file modes are correct
+  assert:
+    that: "'{{ file_index[item.stat.path].mode }}' == '{{ item.stat.mode }}'"
+    msg: >
+      {{ item.invocation.module_args.path }} mode is not correct. Its currently {{ item.stat.mode }}
+      and it should be {{ file_index[item.stat.path].mode }}
+  loop: "{{ required_files_stat.results|flatten(levels=1) }}"
+  when:
+    - file_index[item.stat.path].mode is defined
+
+- name: check files are files and directories are directories
+  assert:
+    that: "'{{ file_index[item.stat.path].isdir }}' == '{{ item.stat.isdir }}'"
+    msg: >
+      {{ item.invocation.module_args.path }} isdir is not correct. Its currently {{ item.stat.isdir }}
+      and it should be {{ file_index[item.stat.path].isdir }}
+  loop: "{{ required_files_stat.results|flatten(levels=1) }}"
+  when:
+    - file_index[item.stat.path].isdir is defined

@@ -1,0 +1,21 @@
+---
+- name: if required_services is not set OR is empty, then we need to define it as an empty dict
+  set_fact:
+    required_services: {}
+  when:
+    - (required_services is not defined or required_services == None)
+
+- name: populate service facts
+  service_facts:
+
+- name: check services are running as required
+  assert:
+    that: "{{ ansible_facts.services[item.key].state == item.value.state }}"
+    msg: "{{ item.key }} state is {{ ansible_facts.services[item.key].state }} and it should be {{ item.value.state }} according to the unit tests"
+  loop: "{{ required_services|dict2items }}"
+
+- name: check services are enabled as required
+  assert:
+    that: "{{ ansible_facts.services[item.key].status == item.value.status }}"
+    msg: "{{ item.key }} status is {{ ansible_facts.services[item.key].status }} and it should be {{ item.value.status }} according to the unit tests"
+  loop: "{{ required_services|dict2items }}"

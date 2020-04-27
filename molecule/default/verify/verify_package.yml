@@ -1,0 +1,31 @@
+---
+- name: Get installed packages (Debian, redhat & others)
+  package_facts:
+    manager: auto
+  become: true
+  when: ansible_distribution != 'Archlinux'
+
+- name: Check packages are installed
+  assert:
+    that: "'{{ item }}' in {{ ansible_facts.packages }}"
+    msg: "Package {{ item }} is not installed"
+  loop: "{{ required_packages|flatten(levels=1) }}"
+  when: ansible_distribution != 'Archlinux'
+
+- name: Get installed packages
+  shell:
+    cmd: "{{ package_list_command }} | awk '{print $1}'"
+  register: installed_packages
+  changed_when: false
+  when:
+    - package_list_command is defined
+    - ansible_distribution == 'Archlinux'
+
+- name: Check packages are installed (ArchLinux)
+  assert:
+    that: "'{{ item }}' in {{ installed_packages.stdout.splitlines() }}"
+    msg: "Package {{ item }} is not installed"
+  loop: "{{ required_packages|flatten(levels=1) }}"
+  when:
+    - ansible_distribution == 'Archlinux'
+    - package_list_command is defined

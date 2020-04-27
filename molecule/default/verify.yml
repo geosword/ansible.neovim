@@ -39,9 +39,27 @@
         - package: "pynvim"
           venv: '{{ venvhome }}/bin/pip'
 #      required_services:
+#        docker.droneciserver.service:
+#          state: "running"
+#          status: "enabled"
 #      required_ports:
+#        80:
+#          name: docker-proxy
+#        443:
+#          name: docker-proxy
 #
   - name: include the standard verifier
-    include_tasks: verify_standard.yml
+    include_tasks: verify/verify_root.yml
+
+# WARNING: READ THIS if you are running port checks
+# If we want to get the "listening ports", then assuming we are using a docker container to test, then we need to run
+# "netstat" on localhost, and not in the container. This is because the container we're testing the role in is interfacing with the docker instance it
+# itself is running in. Therefore the testing container has a SIBLING relationship with the containers it stands up, and not a parent / child relationship
+# as such, its impossible (?) to get the listening ports of the "host" from within the testing container, so this must be run on localhost, and those
+# results checked
+# WARNING 2: READ THIS is you are running port checks
+# It also assumes that the user you are running as has sudo permissions on netstat, so we can get the prog that is listening, without that, we'll only know
+# if the port is open or not. Further, if testing within docker, then the listening process will always be docker-prox (or whatever the docker proxy binary is)
+# undoubtedly, this would be better on a vm than a container
 
 # Add role specific tests here

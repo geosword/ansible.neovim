@@ -1,0 +1,23 @@
+---
+- name: venv_index
+  set_fact:
+    venv_index: "{{ venv_index| default({}) | combine( {item.venv: item} ) }}"
+  loop: "{{ required_pip_packages|flatten(levels=1) }}"
+
+- name: get pip information
+  pip_package_info:
+    clients: "{{ venv_index|flatten(levels=1) }}"
+  register: pippackages
+
+- name: check the pip packages are present
+  assert:
+    that: "{{ pippackages.packages[item.venv][item.package] is defined }}"
+    msg: "item is {{ item.package }} is not installed in {{ item.venv }}"
+  loop: "{{ required_pip_packages|flatten(levels=1) }}"
+
+- name: check the pip packages installed is the right version
+  assert:
+    that: "{{ pippackages.packages[item.venv][item.package][0].version == item.version }}"
+    msg: "item is {{ item.package }} is at version {{ pippackages.packages[item.venv][item.package][0].version }} is not at required {{ item.version }}"
+  loop: "{{ required_pip_packages|flatten(levels=1) }}"
+  when: item.version is defined

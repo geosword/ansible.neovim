@@ -1,0 +1,19 @@
+---
+- name: populate listening ports
+  listen_ports_facts:
+  delegate_to: localhost
+  become: true
+  when:
+    - ansible_virtualization_type == 'docker'
+
+- name: populate listening port facts - when testing NOT with docker container
+  listen_ports_facts:
+  when:
+    - ansible_virtualization_type != 'docker'
+
+- name: check programs a listening on the right ports
+  assert:
+    that: "{{ item.name == required_ports[item.port].name }}"
+    msg: "port {{ item.port }} is not being listened on by {{ required_ports[item.port].name }} as defined in required_ports"
+  loop: "{{ ansible_facts.tcp_listen|flatten(levels=1) }}"
+  when: "required_ports[item.port] is defined"
