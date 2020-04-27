@@ -19,6 +19,13 @@
     - "{{ userdir }}/.config/nvim/"
     - "{{ userdir }}/.local/share/nvim/site/autoload/"
 
+- name: install the python libraries via pip.
+  pip:
+    name:
+      - powerline-status
+      - pynvim
+    virtualenv: "{{ virtualenvpath }}/neovim"
+
 # Yes, I could just rsync the whole directory, without specifying the files, but I think this makes it
 # more .... exact. This way there is no way you can just add a file to the directory, you have to mean it
 # by adding it to code
@@ -34,7 +41,9 @@
     - init.vim
     - plugins.vim
     - yamllint.conf
-
+# TODO create a python virtual environment if possible, and potentially, we need to install
+# powerline-status - CHECK IF THE CONTAINER HAS THIS
+#
 - name: run the Plugin install process in neovim
   get_url:
     url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

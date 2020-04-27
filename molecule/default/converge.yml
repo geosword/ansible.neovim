@@ -2,6 +2,6 @@
 - name: Converge
   hosts: all
   tasks:
-    - name: "Include geosword.neovim"
+    - name: "Include ansible.neovim"
       include_role:
-        name: "geosword.neovim"
+        name: "ansible.neovim"
