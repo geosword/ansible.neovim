@@ -6,6 +6,7 @@ driver:
 platforms:
   - name: instance
     image: geosword/archpy:2020033002
+    group: arch
     dockerfile: Dockerfile.j2
     pull: false
 # pre_build_image: true means PULL from docker hub - which is clearly a typo, its should be "pre_builT_image"

@@ -4,4 +4,4 @@
   tasks:
     - name: "Include ansible.neovim"
       include_role:
-        name: "ansible.neovim"
+        name: "ansible-role-neovim"

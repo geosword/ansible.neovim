@@ -1,5 +1,13 @@
 ---
 # defaults file for geosword.neovim
-userdir: "{{ ansible_env.HOME }}"
+neovim_user: "{{ ansible_env.USER }}"
+neovim_packages:
+  - neovim
+neovim_user_dir: "{{ ansible_env.HOME }}"
 # location of virtualenvironment for neovim. Check this matches ```g:python3_host_prog``` in init.vim
-virtualenvpath: "{{ userdir }}/.virtualenvs/neovim"
+neovim_virtual_env_dir: "{{ neovim_user_dir }}/.virtualenvs/neovim"
+neovim_config_dir: "{{ neovim_user_dir }}/.config/nvim/"
+neovim_vimplug_dir: "{{ neovim_user_dir }}/.local/share/nvim/site/autoload/"
+neovim_dirs:
+  - {path: "{{ neovim_user_dir }}/.config/nvim", owner: "{{ neovim_user }}", group: "{{ neovim_user }}", mode: '0775'}
+  - {path: "{{ neovim_vimplug_dir }}", owner: "{{ neovim_user }}", group: "{{ neovim_user }}", mode: '0775'}

@@ -1,5 +1,6 @@
 " Only run linters named in ale_linters settings.
 let g:ale_linters_explicit = 1
+let g:ale_terraform_terraform_executable = "/usr/bin/terraform"
 " ALEFixers
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],

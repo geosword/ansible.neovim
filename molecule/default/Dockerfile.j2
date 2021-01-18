@@ -37,6 +37,7 @@ RUN useradd -m -d /home/devel -u 1000 -U -G users,tty -s /bin/bash devel
 # Add devel user to build packages
 RUN echo 'devel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER devel
+ENV USER devel
 ENV TERM dumb
 RUN git config --global user.email devel@a.b && git config --global user.name devel
 

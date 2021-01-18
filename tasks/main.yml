@@ -8,46 +8,36 @@
     state: present
     update_cache: true
   become: true
-  with_items:
-    - neovim
+  loop: "{{ neovim_packages }}"
 
 - name: create some folders for adding configuration / plugins
   file:
-    path: "{{ item }}"
+    path: "{{ dir.path }}"
     state: directory
-  with_items:
-    - "{{ userdir }}/.config/nvim/"
-    - "{{ userdir }}/.local/share/nvim/site/autoload/"
+    owner: "{{ dir.owner }}"
+    group: "{{ dir.group }}"
+    mode: "{{ dir.mode }}"
+  loop: "{{ neovim_dirs }}"
+  loop_control:
+    label: path
+    loop_var: dir
 
 - name: install the python libraries via pip.
   pip:
     name:
       - powerline-status
       - pynvim
-    virtualenv: "{{ virtualenvpath }}/neovim"
+    virtualenv: "{{ neovim_virtual_env_dir }}"
 
-# Yes, I could just rsync the whole directory, without specifying the files, but I think this makes it
-# more .... exact. This way there is no way you can just add a file to the directory, you have to mean it
-# by adding it to code
 - name: install neovim config
   synchronize:
-    src: "files/{{ item }}"
-    dest: "{{ userdir }}/.config/nvim/"
-  with_items:
-    - airline.vim
-    - ale.vim
-    - deoplete.vim
-    - ftdetect
-    - init.vim
-    - plugins.vim
-    - yamllint.conf
-# TODO create a python virtual environment if possible, and potentially, we need to install
-# powerline-status - CHECK IF THE CONTAINER HAS THIS
-#
+    src: "files/"
+    dest: "{{ neovim_config_dir }}/"
+
 - name: run the Plugin install process in neovim
   get_url:
     url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    dest: "{{ userdir }}/.local/share/nvim/site/autoload/"
+    dest: "{{ neovim_vimplug_dir }}"
 
 # If you have anything like this that will report "changed" on a second run, then idempotence tests will fail. molecule-idempotence-notest prevents that from happening
 # noqa 305 301 prevents ansible-lint from complaining about using shell and that shell will always report something changed. check ansible-lint -L for details
