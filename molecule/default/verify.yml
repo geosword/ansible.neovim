@@ -1,0 +1,8 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: "copy in some files that we can load in to vim and test syntax highlighting"
+      synchronize:
+        src: "./files/"
+        dest: "/home/devel"
